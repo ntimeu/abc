@@ -12,6 +12,7 @@ use std::iter::Iterator;
 use std::str::Chars;
 
 #[derive(PartialEq)]
+#[cfg_attr(test, derive(Debug))]
 /// List of tokens.
 pub enum Token {
     /// Represent the '+' opcode
@@ -68,5 +69,127 @@ impl<'a> Iterator for Tokenizer<'a> {
                 None        => return None,
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_parsing_plus() {
+        let expected = vec![Token::PLUS];
+        let parsed: Vec<Token>= Tokenizer::new("+").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_parsing_minus() {
+        let expected = vec![Token::MINUS];
+        let parsed: Vec<Token> = Tokenizer::new("-").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_parsing_left() {
+        let expected = vec![Token::LEFT];
+        let parsed: Vec<Token> = Tokenizer::new("<").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_parsing_right() {
+        let expected = vec![Token::RIGHT];
+        let parsed: Vec<Token> = Tokenizer::new(">").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_parsing_scond() {
+        let expected = vec![Token::SCOND];
+        let parsed: Vec<Token> = Tokenizer::new("[").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_parsing_econd() {
+        let expected = vec![Token::ECOND];
+        let parsed: Vec<Token> = Tokenizer::new("]").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_parsing_print() {
+        let expected = vec![Token::PRINT];
+        let parsed: Vec<Token> = Tokenizer::new(".").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_parsing_input() {
+        let expected = vec![Token::INPUT];
+        let parsed: Vec<Token> = Tokenizer::new(",").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_empty_string() {
+        let expected: Vec<Token> = Vec::new();
+        let parsed: Vec<Token> = Tokenizer::new("").into_iter().collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_correct_program() {
+        let expected: Vec<Token> = vec![
+            Token::RIGHT,
+            Token::PLUS,
+            Token::MINUS,
+            Token::LEFT,
+            Token::PLUS,
+            Token::SCOND,
+            Token::MINUS,
+            Token::ECOND
+        ];
+
+        let parsed: Vec<Token> = Tokenizer::new(">+-<+[-]")
+            .into_iter()
+            .collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_valid_with_incorrect_chars() {
+        let expected = vec![
+            Token::PLUS,
+            Token::MINUS
+        ];
+
+        let parsed: Vec<Token> = Tokenizer::new("AZERTY+123456-")
+            .into_iter()
+            .collect();
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn check_spaces() {
+        let expected: Vec<Token> = Vec::new();
+
+        let parsed: Vec<Token> = Tokenizer::new("         ")
+            .into_iter()
+            .collect();
+
+        assert_eq!(parsed, expected);
     }
 }
